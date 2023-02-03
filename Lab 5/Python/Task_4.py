@@ -20,19 +20,22 @@ message_data = message_init
 message_noisy = np.array(message_data, dtype='int32')
 
 time_endpt = int(audio_duration)
+# Defining all the common parameters for each second
+start_time = 0
+stop_time = 1
+# Modelling the Channel - Choose the bandwidth such that all the frequencies are captured.
+B = 20000
+# Modelling noise
+mu = 0  # Sum of last two digits of ID
+sigma_square = 4  # Sum of last three digits of ID
 for T in range(time_endpt):
 
-    # Defining all the common parameters for each second
-    start_time = 0
-    stop_time = 1
     fs = fs_audio
     ts = 1/fs
     time = np.arange(start_time, stop_time, ts)
 
     # Generating the message signal
     message_t = message_data[T*fs:fs*(T + 1)]
-    # Modelling the Channel - Choose the bandwidth such that all the frequencies are captured.
-    B = 20000
     channel_t = 2 * B * np.sinc(2 * B * (time - (-start_time + stop_time)/2))
 
     plt.figure(1)
@@ -41,9 +44,6 @@ for T in range(time_endpt):
     plt.xlabel('Time')
     plt.ylabel('Amplitude')
 
-    # Modelling noise
-    mu = 0  # Sum of last two digits of ID
-    sigma_square = 4  # Sum of last three digits of ID
     sigma = math.sqrt(sigma_square)
 
     noise = mu + sigma * np.random.randn(len(message_t))
@@ -65,8 +65,8 @@ for T in range(time_endpt):
 plt.show()
 
 dir_name = os.getcwd()
-dir_name_new = '{}'.format(dir_name).replace('\\', '/')
+dir_name_new = f'{dir_name}'.replace('\\', '/')
 filename = "Noisy Music.wav"
-dir_name_final = dir_name_new + '/' + filename
+dir_name_final = f'{dir_name_new}/{filename}'
 wavfile.write(filename, fs_audio, message_noisy)
 playsound(dir_name_final)

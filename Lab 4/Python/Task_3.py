@@ -13,12 +13,14 @@ f1 = random.randint(10,100)
 f2 = random.randint(10,100)
 time_endpt = 30
 
+# Defining all the common parameters for each second
+start_time = 0
+stop_time = 1
+fm = 100  # Maximum frequency component in Hertz for the given spectrum - Last digit of ID number goes here
+# Modelling the channel
+B = 50
 for T in range(time_endpt):
 
-    # Defining all the common parameters for each second
-    start_time = 0
-    stop_time = 1
-    fm = 100  # Maximum frequency component in Hertz for the given spectrum - Last digit of ID number goes here
     fs = 10*fm
     ts = 1/fs
     time = np.arange(start_time,stop_time,ts)
@@ -27,8 +29,6 @@ for T in range(time_endpt):
     N = len(time)
     freq_axis = np.linspace(-fs/2, fs/2, N)
 
-    # Modelling the channel
-    B = 50
     channel_t = 2*B*np.sinc(2*B*(time - (start_time + stop_time)/2))
     channel_f = rect_pulse(freq_axis, 2*B)  # Done using a rectangular pulse
     # channel_f = np.fft.fftshift(np.abs(np.fft.fft(channel_t)/fs)) # Done using the fft of sinc pulse

@@ -5,18 +5,26 @@ from scipy import signal
 
 signal_duration = 10
 
+# defining the common parameters
+
+N = 11  # Sum of last 2 digits of ID
+start_time = 0
+stop_time = 1
+f_carrier = 500
+A = 25
+# Defining the message signal
+B_max = 5
+B_min = 1
+# Modelling noise
+mu = 0
+# Modelling the Channel
+a = 0.01
+
 for T in range(signal_duration):
 
-    # defining the common parameters
-
-    N = 11  # Sum of last 2 digits of ID
-    start_time = 0
-    stop_time = 1
-    f_carrier = 500
     fs = 10 * f_carrier
     ts = 1 / fs
     time = np.arange(start_time, stop_time, ts)
-    A = 25
     # Because the min of the largest sinc pulse for this case is ~ -21,
     # hence for the envelope detector to work the carrier amplitude must be greater than this.
 
@@ -26,9 +34,6 @@ for T in range(signal_duration):
     len_time = len(time)
     freq_axis = np.linspace(-fs / 2, fs / 2, len_time)
 
-    # Defining the message signal
-    B_max = 5
-    B_min = 1
     B = np.random.randint(B_min, B_max + 1)
     message_t = 20 * B * np.sinc(20 * B * (time - (start_time + stop_time) / 2))
     message_f = np.fft.fftshift(abs(np.fft.fft(message_t) / fs))
@@ -37,14 +42,9 @@ for T in range(signal_duration):
     message_mod_t = np.multiply((1 + message_t / A), carrier_signal_t)
     message_mod_f = np.fft.fftshift(abs(np.fft.fft(message_mod_t)) / fs)
 
-    # Modelling noise
-    mu = 0
     sigma_square = 10**(-6)
     sigma = np.sqrt(sigma_square)
     noise = mu + sigma * np.random.randn(len(message_t))
-
-    # Modelling the Channel
-    a = 0.01
 
     # Both of the following implementations work - uncomment any one at a time
     # 1. Implement the delta function

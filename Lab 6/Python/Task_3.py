@@ -24,11 +24,26 @@ message_data = message_init
 message_noisy = np.array(message_data, dtype='int32')
 
 time_endpt = int(audio_duration)
+# Defining all the common parameters for each second
+start_time = 0
+stop_time = 1
+f_carrier = 12500
+# Modelling the channel - Multiplied with carrier to shift it to the carrier frequency.
+B1 = 10000
+# The following can also be used as an alternative method. Uncomment this and the output_f using np.multiply.
+# channel_f = rect_pulse(freq_axis, 2 * B1)  # Done using a rectangular pulse
+# channel_f = np.fft.fftshift(np.abs(np.fft.fft(channel_t)/fs)) # Done using the fft of sinc pulse
+# Either of the two ways mentioned above can be used, and they give identical results
+
+# Modelling noise
+mu = 0  # Sum of last two digits of ID
+sigma_square = 0.01  # Sum of last three digits of ID
+# Alternately:
+# output_f = np.multiply(channel_f, message_mod_f)
+
+# Demodulation
+B_LPF = 10000
 for T in range(time_endpt):
-    # Defining all the common parameters for each second
-    start_time = 0
-    stop_time = 1
-    f_carrier = 12500
     fs = fs_audio
     ts = 1 / fs
     time = np.arange(start_time, stop_time, ts)
@@ -51,17 +66,7 @@ for T in range(time_endpt):
     message_mod_t = np.multiply(message_t, carrier_signal_t)
     message_mod_f = np.fft.fftshift(abs(np.fft.fft(message_mod_t)/fs))
 
-    # Modelling the channel - Multiplied with carrier to shift it to the carrier frequency.
-    B1 = 10000
     channel_t = np.multiply(2 * B1 * np.sinc(2 * B1 * (time - (start_time + stop_time) / 2)), carrier_signal_t)
-    # The following can also be used as an alternative method. Uncomment this and the output_f using np.multiply.
-    # channel_f = rect_pulse(freq_axis, 2 * B1)  # Done using a rectangular pulse
-    # channel_f = np.fft.fftshift(np.abs(np.fft.fft(channel_t)/fs)) # Done using the fft of sinc pulse
-    # Either of the two ways mentioned above can be used, and they give identical results
-
-    # Modelling noise
-    mu = 0  # Sum of last two digits of ID
-    sigma_square = 0.01  # Sum of last three digits of ID
     sigma = math.sqrt(sigma_square)
     noise = mu + sigma * np.random.randn(len(time))
 
@@ -69,11 +74,6 @@ for T in range(time_endpt):
     # Modify the amplitude of the noise signal and see the effect
     output_t = np.convolve(message_mod_t, channel_t, mode='same')/fs + noise
     output_f = np.fft.fftshift(abs(np.fft.fft(output_t)/fs))
-    # Alternately:
-    # output_f = np.multiply(channel_f, message_mod_f)
-
-    # Demodulation
-    B_LPF = 10000
     output_predemod_t = np.multiply(output_t, carrier_signal_t)
     LPF_t = 2 * B_LPF * np.sinc(2 * B_LPF * (time - (start_time + stop_time) / 2))
     output_demod_t = np.convolve(LPF_t, output_predemod_t, mode='same')/fs
@@ -131,9 +131,9 @@ for T in range(time_endpt):
 plt.show()
 
 dir_name = os.getcwd()
-dir_name_new = '{}'.format(dir_name).replace('\\', '/')
+dir_name_new = f'{dir_name}'.replace('\\', '/')
 filename = "Noisy Music.wav"
-dir_name_final = dir_name_new + '/' + filename
+dir_name_final = f'{dir_name_new}/{filename}'
 wavfile.write(filename, fs_audio, message_noisy)
 playsound(dir_name_final)
 

@@ -2,8 +2,6 @@
 my_str = "Swagat Panda"
 code = []
 binary_rep =[]
-decode = []
-
 # Coding the string in binary
 for i in my_str:
     code.append(ord(i))
@@ -11,10 +9,7 @@ for i in my_str:
 
 binary_str = [''.join(i) for i in [binary_rep]]
 
-# Decoding the string
-for j in code:
-    decode.append(chr(j))
-
+decode = [chr(j) for j in code]
 dec_str = [''.join(i) for i in [decode]]
 
 print(code)

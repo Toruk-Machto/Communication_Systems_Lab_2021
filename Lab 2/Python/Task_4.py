@@ -19,9 +19,9 @@ fd2 = 350
 dial_tone = 0.1*np.sin(2*math.pi*fd1*t1) + 0.1*np.sin(2*math.pi*fd2*t1)
 
 dir_name = os.getcwd()
-dir_name_new = '{}'.format(dir_name).replace('\\', '/')
+dir_name_new = f'{dir_name}'.replace('\\', '/')
 filename = "dial_tone.wav"
-dir_name_final = dir_name_new + '/' + filename
+dir_name_final = f'{dir_name_new}/{filename}'
 print(dir_name_final)
 wavfile.write(filename, fs1, dial_tone)
 playsound(dir_name_final)

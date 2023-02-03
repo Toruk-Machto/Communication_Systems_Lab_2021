@@ -17,7 +17,7 @@ fig = plt.figure(figsize=(3, 3))
 P_r1 = []
 P_r2 = []
 d = []
-for i in range(0, 20):
+for i in range(20):
     di = 100 + 250*i
     d.append(di)
     P_r1.append(10 * cmath.log10(P_t * 10 ** 3 * ((G_t * G_r * c ** 2) / (4 * cmath.pi * freq1 * di) ** 2)))

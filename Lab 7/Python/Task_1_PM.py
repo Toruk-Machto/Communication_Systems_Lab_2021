@@ -5,16 +5,23 @@ from scipy import signal
 
 signal_duration = 10
 
+# defining the common parameters
+A = 1
+N = 11  # Sum of last 2 digits of ID
+start_time = 0
+stop_time = 1
+f_carrier = 1500  # different from the problem statement to avoid the upper-lower sideband interference
+kp = 10  # radian/Hz - different from the problem to keep the code run time reasonable
+Am_max = 10
+Am_min = 1
+# FOR LAB 7, THE PART THAT FOLLOWS IS NOT IN THE PROBLEM, IT WAS DONE FOR CONTINUATION TO THE PREVIOUS
+# LABS WHICH HAD DEMODULATION.
+
+# Modelling noise
+mu = 0
+# If receiver doesn't know the carrier, estimate the subtraction term
+receiverKnowsCarrier = True
 for T in range(signal_duration):
-    # defining the common parameters
-    A = 1
-    N = 11  # Sum of last 2 digits of ID
-    start_time = 0
-    stop_time = 1
-    f_carrier = 1500  # different from the problem statement to avoid the upper-lower sideband interference
-    kp = 10  # radian/Hz - different from the problem to keep the code run time reasonable
-    Am_max = 10
-    Am_min = 1
     Am = np.random.randint(Am_min, Am_max + 1)
     # B = 2 * (kp * max(mp'))/(2 * pi) + B), and in our case mp is a sinusoid, so max(mp') = 2*pi*fm*Am
     B_sig = 2 * (Am_max * kp * N + N)
@@ -33,11 +40,6 @@ for T in range(signal_duration):
     message_mod_t = A * np.cos(2 * math.pi * f_carrier * time + kp * message_t)
     message_mod_f = np.fft.fftshift(abs(np.fft.fft(message_mod_t) / fs))
 
-    # FOR LAB 7, THE PART THAT FOLLOWS IS NOT IN THE PROBLEM, IT WAS DONE FOR CONTINUATION TO THE PREVIOUS
-    # LABS WHICH HAD DEMODULATION.
-
-    # Modelling noise
-    mu = 0
     sigma_square = 10**(-4)
     sigma = np.sqrt(sigma_square)
     noise = mu + sigma * np.random.randn(len(message_t))
@@ -55,8 +57,6 @@ for T in range(signal_duration):
     output_predemod_t = signal.hilbert(output_t)  # form the analytical signal from the received vector
     inst_phase = np.unwrap(np.angle(output_predemod_t))  # instantaneous phase
 
-    # If receiver doesn't know the carrier, estimate the subtraction term
-    receiverKnowsCarrier = True
     if receiverKnowsCarrier:
         offsetTerm = 2 * math.pi * f_carrier * time  # if carrier frequency & phase offset is known
         output_demod_t = (inst_phase - offsetTerm) / kp - np.mean((inst_phase - offsetTerm) / kp)

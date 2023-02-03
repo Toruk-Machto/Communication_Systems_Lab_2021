@@ -13,10 +13,13 @@ def rect_pulse(time, pulse_width):
 
 
 def select_message(time, num, start_time, stop_time):
-	message = []
-	message.extend([np.cos(2*math.pi*last_digit_id*time),
-					2*last_digit_id*np.sinc(2*last_digit_id*(time - (start_time + stop_time)/2)),
-					rect_pulse(time - (start_time+stop_time)/2, last_digit_id)])
+	message = [
+		np.cos(2 * math.pi * last_digit_id * time),
+		2
+		* last_digit_id
+		* np.sinc(2 * last_digit_id * (time - (start_time + stop_time) / 2)),
+		rect_pulse(time - (start_time + stop_time) / 2, last_digit_id),
+	]
 	return message[num]
 
 
@@ -24,6 +27,9 @@ one_time_rnd_num = random.randint(0,3)
 
 time_endpt = 30
 
+# Defining all the common parameters for each second
+start_time = 0
+stop_time = 1
 if one_time_rnd_num == 3:
 	file = wave.open('Music.wav')
 	fs_audio = file.getframerate()
@@ -33,11 +39,8 @@ if one_time_rnd_num == 3:
 	data = file.readframes(-1)
 	mat_data_init = np.frombuffer(data, np.int16)
 	mat_data = mat_data_init/max(mat_data_init)
-	
+
 	for T in range(int(audio_duration)+1):
-		# Defining all the common parameters for each second
-		start_time = 0
-		stop_time = 1
 		ts = 1/float(fs_audio)
 		time = np.arange(start_time, stop_time, ts)
 
@@ -59,15 +62,12 @@ if one_time_rnd_num == 3:
 		plt.xlabel('Frequency')
 		plt.ylabel('Amplitude')
 
-		# plt.pause(1)
+			# plt.pause(1)
 	plt.show()
 	playsound('Music.wav')
 
 else:
 	for T in range(time_endpt):
-		# Defining all the common parameters for each second
-		start_time = 0
-		stop_time = 1
 		fm = last_digit_id   # Maximum frequency component in Hertz for the given spectrum - Last digit of ID number goes here
 		fs = 100*fm
 		ts = 1/fs
@@ -93,7 +93,7 @@ else:
 		plt.xlabel('Frequency')
 		plt.ylabel('Amplitude')
 
-		# plt.pause(1)
+			# plt.pause(1)
 	plt.show()
 
 
