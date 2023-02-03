@@ -5,17 +5,29 @@ from scipy import signal
 
 signal_duration = 10
 
-for T in range(signal_duration):
-    # defining the common parameters
+# defining the common parameters
 
-    N = 11  # Sum of last 2 digits of ID
-    start_time = 0
-    stop_time = 1
-    f_carrier = 100
+N = 11  # Sum of last 2 digits of ID
+start_time = 0
+stop_time = 1
+f_carrier = 100
+A = 2
+# FOR LAB 7, THE PART THAT FOLLOWS IS NOT IN THE PROBLEM, IT WAS DONE FOR CONTINUATION TO THE PREVIOUS
+# LABS WHICH HAD DEMODULATION.
+
+# Modelling noise
+mu = 0
+# Demodulation - division by 2 to ensure that
+# the amplitude of the carrier which has been multiplied before is reduced to 1.
+
+# I did not use Hilbert based envelope detector demodulation for SSB
+# because it is very inefficient -- https://www.ee.ryerson.ca/~lzhao/ELE635/Chap3_AM-notes%20Part%202.pdf
+
+B_LPF = 200
+for T in range(signal_duration):
     fs = 10 * f_carrier
     ts = 1 / fs
     time = np.arange(start_time, stop_time, ts)
-    A = 2
     carrier_signal_t = A * np.cos(2 * math.pi * f_carrier * time)
     carrier_signal_f = np.fft.fftshift(abs(np.fft.fft(carrier_signal_t) / fs))
 
@@ -34,11 +46,6 @@ for T in range(signal_duration):
                         np.imag(signal.hilbert(message_t) * np.sin(2 * math.pi * f_carrier * time))
     message_mod_ssb_f = np.fft.fftshift(abs(np.fft.fft(message_mod_ssb_t)) / fs)
 
-    # FOR LAB 7, THE PART THAT FOLLOWS IS NOT IN THE PROBLEM, IT WAS DONE FOR CONTINUATION TO THE PREVIOUS
-    # LABS WHICH HAD DEMODULATION.
-
-    # Modelling noise
-    mu = 0
     sigma_square = 10 ** (-4)
     sigma = np.sqrt(sigma_square)
     noise = mu + sigma * np.random.randn(len(message_t))
@@ -49,13 +56,6 @@ for T in range(signal_duration):
     output_t = np.convolve(message_mod_ssb_t, channel_t, mode='same') / fs + noise
     output_f = np.fft.fftshift(abs(np.fft.fft(output_t) / fs))
 
-    # Demodulation - division by 2 to ensure that
-    # the amplitude of the carrier which has been multiplied before is reduced to 1.
-
-    # I did not use Hilbert based envelope detector demodulation for SSB
-    # because it is very inefficient -- https://www.ee.ryerson.ca/~lzhao/ELE635/Chap3_AM-notes%20Part%202.pdf
-
-    B_LPF = 200
     output_predemod_t = np.multiply(carrier_signal_t, output_t)
     LPF_t = 2 * B_LPF * np.sinc(2 * B_LPF * (time - (start_time + stop_time) / 2))
     output_demod_t = np.convolve(LPF_t, output_predemod_t, mode='same') / fs

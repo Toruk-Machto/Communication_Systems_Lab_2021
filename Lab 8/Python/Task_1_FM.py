@@ -5,16 +5,24 @@ from scipy import signal
 
 signal_duration = 10
 
+# defining the common parameters
+A = 10  # Carrier Amplitude
+N = 11  # Sum of last 2 digits of ID
+start_time = 0
+stop_time = 1
+f_carrier = 1000  # different from the problem statement to avoid the upper-lower sideband interference
+beta = 10
+Am_max = 10
+Am_min = 1
+# FOR LAB 8, THE PART THAT FOLLOWS IS NOT IN THE PROBLEM, IT WAS DONE FOR CONTINUATION TO THE PREVIOUS
+# LABS WHICH HAD DEMODULATION.
+
+# Modelling noise
+mu = 0
+# If receiver doesn't know the carrier, estimate the subtraction term
+
+receiverKnowsCarrier = True
 for T in range(signal_duration):
-    # defining the common parameters
-    A = 10  # Carrier Amplitude
-    N = 11  # Sum of last 2 digits of ID
-    start_time = 0
-    stop_time = 1
-    f_carrier = 1000  # different from the problem statement to avoid the upper-lower sideband interference
-    beta = 10
-    Am_max = 10
-    Am_min = 1
     Am = np.random.randint(Am_min, Am_max + 1)
     # B = 2 * (kp * max(mp)/(2 * pi) + B), and in our case mp is a sinusoid, so max(mp) = 1*Am
     kf = 2 * math.pi * beta * N / (2 * N)
@@ -35,11 +43,6 @@ for T in range(signal_duration):
     message_mod_t = A * np.cos(2 * math.pi * f_carrier * time + kf * message_integrated_t)
     message_mod_f = np.fft.fftshift(abs(np.fft.fft(message_mod_t) / fs))
 
-    # FOR LAB 8, THE PART THAT FOLLOWS IS NOT IN THE PROBLEM, IT WAS DONE FOR CONTINUATION TO THE PREVIOUS
-    # LABS WHICH HAD DEMODULATION.
-
-    # Modelling noise
-    mu = 0
     sigma_square = 10**(-4)
     sigma = np.sqrt(sigma_square)
     noise = mu + sigma * np.random.randn(len(message_t))
@@ -64,19 +67,13 @@ for T in range(signal_duration):
     output_predemod_t = signal.hilbert(output_t)  # form the analytical signal from the received vector
     inst_phase = np.unwrap(np.angle(output_predemod_t))  # instantaneous phase
 
-    # If receiver doesn't know the carrier, estimate the subtraction term
-
-    receiverKnowsCarrier = True
     if receiverKnowsCarrier:
         offsetTerm = 2 * math.pi * f_carrier * time  # if carrier frequency & phase offset is known
-        output_predemod_t = (inst_phase - offsetTerm) / (kf*ts)
-        output_demod_t = np.diff(output_predemod_t, prepend=output_predemod_t[0])
     else:
         p = np.poly1d(np.polyfit(time, inst_phase, 1))  # linearly fit the instantaneous phase
         offsetTerm = p(time)  # re-evaluate the offset term using the fitted values
-        output_predemod_t = (inst_phase - offsetTerm) / (kf*ts)
-        output_demod_t = np.diff(output_predemod_t, prepend=output_predemod_t[0])
-
+    output_predemod_t = (inst_phase - offsetTerm) / (kf*ts)
+    output_demod_t = np.diff(output_predemod_t, prepend=output_predemod_t[0])
     output_demod_f = np.fft.fftshift(abs(np.fft.fft(output_demod_t) / fs))
 
     # Some samples from the beginning and the end of the signal are removed while plotting the demodulated signal,

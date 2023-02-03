@@ -30,36 +30,37 @@ fig = plt.figure(figsize=(3, 3))
 plt.subplots_adjust(left=0.1, bottom=0.1, right=0.9, top=0.9, wspace=0.5, hspace=0.5)
 
 for f in freq:
-    if counter <= num_rows*num_cols:
-        R1 = (R_oc**4 + a_c*f**2)**(1/4)
-        L1 = (L_0 + L_inf*(f/f_m)**b)/(1 + (f/f_m)**b)
-        G1 = g_0 * f ** g_e
-        C1 = C_inf + C_0*f**(- c_e)
-
-        omega1 = 2*cmath.pi*f
-        gamma1 = cmath.sqrt((R1 + 1j*L1*omega1)*(G1 + 1j*C1*omega1))
-
-        d1 = []
-        H1 = []
-        for i in range(9):
-            di = 10 + (i - 1)*500
-            d1.append(di)
-            H1.append(10*cmath.log10(abs(cmath.e**(-gamma1*di/1000))))
-
-        plt.subplot(num_rows, num_cols, counter)
-        plt.plot(d1, H1, 'o-')
-        plt.title('Subplot {}: Relation of H(f) with Distance at a fixed frequency of {} kHz'.format(counter, f))
-        plt.xlabel('Distance (m)')
-        plt.ylabel('Received power (mdB)')
-        plt.grid(True, which='both')
-        plt.axhline(y=0, color='m')
-
-        axes = plt.gca()
-        axes.set_xlim([0, None])
-        axes.set_ylim([None, None])
-
-        counter = counter + 1
-    else:
+    if counter > num_rows * num_cols:
         break
 
+    R1 = (R_oc**4 + a_c*f**2)**(1/4)
+    L1 = (L_0 + L_inf*(f/f_m)**b)/(1 + (f/f_m)**b)
+    G1 = g_0 * f ** g_e
+    C1 = C_inf + C_0*f**(- c_e)
+
+    omega1 = 2*cmath.pi*f
+    gamma1 = cmath.sqrt((R1 + 1j*L1*omega1)*(G1 + 1j*C1*omega1))
+
+    d1 = []
+    H1 = []
+    for i in range(9):
+        di = 10 + (i - 1)*500
+        d1.append(di)
+        H1.append(10*cmath.log10(abs(cmath.e**(-gamma1*di/1000))))
+
+    plt.subplot(num_rows, num_cols, counter)
+    plt.plot(d1, H1, 'o-')
+    plt.title(
+        f'Subplot {counter}: Relation of H(f) with Distance at a fixed frequency of {f} kHz'
+    )
+    plt.xlabel('Distance (m)')
+    plt.ylabel('Received power (mdB)')
+    plt.grid(True, which='both')
+    plt.axhline(y=0, color='m')
+
+    axes = plt.gca()
+    axes.set_xlim([0, None])
+    axes.set_ylim([None, None])
+
+    counter = counter + 1
 plt.show()

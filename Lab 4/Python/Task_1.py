@@ -4,19 +4,19 @@ import random
 import math
 
 time_endpt = 30
+# Defining all the common parameters for each second
+start_time = 0
+stop_time = 1
+fm = 3    # Maximum frequency component in Hertz for the given spectrum - Last digit of ID number goes here
 for T in range(time_endpt):
 
-    # Defining all the common parameters for each second
-    start_time = 0
-    stop_time = 1
-    fm = 3    # Maximum frequency component in Hertz for the given spectrum - Last digit of ID number goes here
     fs = 10*fm
     ts = 1/fs
     time = np.arange(start_time, stop_time, ts)
 
     # Generating the message signal
     U = random.randint(1, 5)
-    message_t = U*np.cos(2*math.pi*fm*time)    
+    message_t = U*np.cos(2*math.pi*fm*time)
     message_f = np.fft.fftshift(abs(np.fft.fft(message_t)/fs))
 
     # Frequency axis

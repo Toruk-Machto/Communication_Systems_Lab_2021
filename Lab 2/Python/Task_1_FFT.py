@@ -7,7 +7,7 @@ B = 10
 t_start = -20
 t_end = 20
 fm = B
-fs = 10*fm 
+fs = 10*fm
 # fs>=2fm; fs=infinite (Nyquist Criteria)
 ts = 1/fs
 
@@ -34,6 +34,6 @@ fourier_transform_processed_2 = np.fft.fftshift(fourier_transform_processed_1)
 plt.plot(frequency_axis, fourier_transform_processed_2, color="red")
 plt.xlabel("Frequency(Hz)")
 plt.ylabel("|M(f)|")
-plt.title("Fourier Transform of the 2x{}xsinc(2pix{}xt) , B = {}".format(B, B, B))
+plt.title(f"Fourier Transform of the 2x{B}xsinc(2pix{B}xt) , B = {B}")
 plt.grid(color="black")
 plt.show()

@@ -17,7 +17,7 @@ plt.figure(1)
 plt.plot(t, sinc_pulse)
 plt.xlabel('Time')
 plt.ylabel('h(t)')
-plt.title('Sinc Pulse: {}sinc({}t) , B = {}'.format(2*B, 2*math.pi*B, B))
+plt.title(f'Sinc Pulse: {2 * B}sinc({2 * math.pi * B}t) , B = {B}')
 plt.grid(True, which='both')
 plt.axhline(y=0, color='m')
 
@@ -34,7 +34,9 @@ plt.figure(2)
 plt.plot(frequency_axis, fourier_transform_processed_2, color="red")
 plt.xlabel("Frequency(Hz)")
 plt.ylabel("|H(f)|")
-plt.title("Fourier Transform of the {}sinc({}t) , B = {}".format(2*B, 2*math.pi*B, B))
+plt.title(
+    f"Fourier Transform of the {2 * B}sinc({2 * math.pi * B}t) , B = {B}"
+)
 plt.grid(True, which='both')
 
 axes = plt.gca()

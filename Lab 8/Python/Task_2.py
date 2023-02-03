@@ -5,18 +5,26 @@ from scipy import signal
 
 signal_duration = 10
 
+# defining the common parameters
+
+N = 11  # Sum of last 2 digits of ID
+start_time = 0
+stop_time = 1
+A = 2  # Carrier Amplitude
+f_carrier = 1000  # different from the problem statement to avoid the upper-lower sideband interference
+beta = 20
+Am_max = 10
+Am_min = 1
+# Modelling noise
+mu = 0
+# Modelling the Channel
+a = 0.5
+
+# If receiver doesn't know the carrier, estimate the subtraction term
+
+receiverKnowsCarrier = True
 for T in range(signal_duration):
 
-    # defining the common parameters
-
-    N = 11  # Sum of last 2 digits of ID
-    start_time = 0
-    stop_time = 1
-    A = 2  # Carrier Amplitude
-    f_carrier = 1000  # different from the problem statement to avoid the upper-lower sideband interference
-    beta = 20
-    Am_max = 10
-    Am_min = 1
     Am = np.random.randint(Am_min, Am_max + 1)
     kf = 2 * math.pi * beta * (2 * Am) / (2 * Am)
     B_sig = 2 * (2 * Am_max) * (beta + 1)
@@ -43,14 +51,9 @@ for T in range(signal_duration):
     message_mod_t = A * np.cos(2 * math.pi * f_carrier * time + kf * message_integrated_t)
     message_mod_f = np.fft.fftshift(abs(np.fft.fft(message_mod_t) / fs))
 
-    # Modelling noise
-    mu = 0
     sigma_square = 10**(-6)
     sigma = np.sqrt(sigma_square)
     noise = mu + sigma * np.random.randn(len(message_t))
-
-    # Modelling the Channel
-    a = 0.5
 
     # Both of the following implementations work - uncomment any one at a time
     # 1. Implement the delta function
@@ -79,19 +82,13 @@ for T in range(signal_duration):
     output_predemod_t = signal.hilbert(output_t)  # form the analytical signal from the received vector
     inst_phase = np.unwrap(np.angle(output_predemod_t))  # instantaneous phase
 
-    # If receiver doesn't know the carrier, estimate the subtraction term
-
-    receiverKnowsCarrier = True
     if receiverKnowsCarrier:
         offsetTerm = 2 * math.pi * f_carrier * time  # if carrier frequency & phase offset is known
-        output_predemod_t = (inst_phase - offsetTerm) / (kf * ts)
-        output_demod_t = np.diff(output_predemod_t, prepend=output_predemod_t[0])
     else:
         p = np.poly1d(np.polyfit(time, inst_phase, 1))  # linearly fit the instantaneous phase
         offsetTerm = p(time)  # re-evaluate the offset term using the fitted values
-        output_predemod_t = (inst_phase - offsetTerm) / (kf * ts)
-        output_demod_t = np.diff(output_predemod_t, prepend=output_predemod_t[0])
-
+    output_predemod_t = (inst_phase - offsetTerm) / (kf * ts)
+    output_demod_t = np.diff(output_predemod_t, prepend=output_predemod_t[0])
     output_demod_f = np.fft.fftshift(abs(np.fft.fft(output_demod_t) / fs))
 
     # Some samples from the beginning and the end of the signal are removed while plotting the demodulated signal,
